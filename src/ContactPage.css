@@ -1,0 +1,13 @@
+.contact-page-viewport {
+    background-image: url("./assets/login-bg.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding: 1em 2em;
+    
+  }
+  
+  .header-ico h1 span{
+      font-size: 3rem;
+      font-weight: bolder;
+      color: #0D74D7;
+  }
