@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
+import { UserRoleContext } from "../utils/contextApi";
 import TextField from "./TextField";
 // import { chainConnection } from "../functions/chainConnection";
 const { ApiPromise } = require("@polkadot/api");
 const { Keyring } = require("@polkadot/keyring");
 
 const ContactForm = (props) => {
+  const roleContext = useContext(UserRoleContext);
   const { provider } = props;
   let formValueWallet;
   let formValueToken;
@@ -46,7 +48,7 @@ const ContactForm = (props) => {
       console.log(err);
     }
   }
-
+console.log(roleContext.apiData);
   return (
     <div className="row" style={{ padding: "3em 6em" }}>
       <div className="container header-ico text-center">
