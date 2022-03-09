@@ -1,54 +1,27 @@
-import React, { useState,useContext } from "react";
-import { UserRoleContext } from "../utils/contextApi";
+import axios from "axios";
+import React, { useState } from "react";
 import TextField from "./TextField";
-// import { chainConnection } from "../functions/chainConnection";
-const { ApiPromise } = require("@polkadot/api");
-const { Keyring } = require("@polkadot/keyring");
 
-const ContactForm = (props) => {
-  const roleContext = useContext(UserRoleContext);
-  const { provider } = props;
-  let formValueWallet;
-  let formValueToken;
-  const [loading, setloading] = useState(false);
+const ContactForm = () => {
+  const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState("");
+  const [amount, setAmount] = useState(0);
 
-  function handleChange(event) {
-    formValueWallet = event.target.value;
-  }
-  function handleChangeOne(event) {
-    formValueToken = event.target.value;
-  }
+  const onClick = (event) => {
+    // console.log(`address : ${address} || amount : ${amount}`);
+    setLoading(true);
+    axios
+      .post("/chain/send-tokens", {
+        account: address,
+        amount,
+      })
+      .then((res) => {
+        setLoading(false);
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
 
-  async function onClick() {
-    setloading(true);
-    const decimal = 10 ** 12;
-    const amnt = parseInt(formValueToken) * decimal;
-    const api = await ApiPromise.create({ provider });
-
-    const [chain, nodeName, nodeVersion] = await Promise.all([
-      api.rpc.system.chain(),
-      api.rpc.system.name(),
-      api.rpc.system.version(),
-    ]);
-
-    console.log(
-      `You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`
-    );
-
-    try {
-      const keyring = new Keyring({ type: "sr25519" });
-      const alice = keyring.addFromUri("//Alice");
-
-      const transact = api.tx.balances.transfer(formValueWallet, amnt);
-
-      const hash = await transact.signAndSend(alice);
-
-      console.log("Transfer sent with hash", hash.toHex());
-    } catch (err) {
-      console.log(err);
-    }
-  }
-console.log(roleContext.apiData);
   return (
     <div className="row" style={{ padding: "3em 6em" }}>
       <div className="container header-ico text-center">
@@ -61,7 +34,8 @@ console.log(roleContext.apiData);
       </div>
       <div
         className="row"
-        style={{ flexDirection: "column", alignItems: "center" }}>
+        style={{ flexDirection: "column", alignItems: "center" }}
+      >
         <div className="container text-center">
           <h2 style={{ fontSize: "medium", color: "#828282" }}>
             {" "}
@@ -98,17 +72,21 @@ console.log(roleContext.apiData);
           style={{
             backgroundColor: "transparent",
             border: "none",
-          }}></button>
+          }}
+        ></button>
         <div
           className=" d-flex mt-5"
-          style={{ justifyContent: "space-evenly" }}>
+          style={{ justifyContent: "space-evenly" }}
+        >
           <div style={{ marginBottom: "2em" }}>
             <TextField
               label={"Wallet Address"}
               placeholder={"Address"}
               type={"text"}
+              value={address}
               color={"#9FA0A3"}
-              onChange={handleChange}
+              required
+              onChange={(e) => setAddress(e.target.value)}
             />
           </div>
           <div style={{ marginBottom: "2em" }}>
@@ -116,8 +94,10 @@ console.log(roleContext.apiData);
               label={"Token amount"}
               placeholder={"Amount"}
               type={"text"}
+              value={amount}
               color={"#9FA0A3"}
-              onChange={handleChangeOne}
+              onChange={(e) => setAmount(e.target.value)}
+              name="amount"
             />
           </div>
         </div>
@@ -131,7 +111,8 @@ console.log(roleContext.apiData);
             border: "none",
             width: "30%",
           }}
-          onClick={onClick}>
+          onClick={(e) => onClick(e)}
+        >
           {loading ? (
             <div className="spinner-border" role="status">
               <span className="visually-hidden">Loading...</span>
